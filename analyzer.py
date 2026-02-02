@@ -140,10 +140,30 @@ class WebsiteAnalyzer:
     
     def generate_gherkin(self, action: str, url: str) -> str:
         """Generate Gherkin format story"""
+        # Make action more specific for better test scenarios
+        verb = "perform the action"
+        expected = "see the result"
+        
+        if "log in" in action.lower() or "login" in action.lower():
+            verb = "enter my credentials and submit"
+            expected = "be logged into my account"
+        elif "register" in action.lower() or "sign up" in action.lower():
+            verb = "fill in the registration form and submit"
+            expected = "see a confirmation message"
+        elif "search" in action.lower():
+            verb = "enter my search query and submit"
+            expected = "see relevant search results"
+        elif "submit" in action.lower():
+            verb = "fill in the form and submit"
+            expected = "see a success confirmation"
+        elif "navigate" in action.lower():
+            verb = "click on navigation links"
+            expected = "be taken to the correct page"
+        
         return f"""Feature: {action.capitalize()}
   
   Scenario: User wants to {action}
     Given I am on the page "{url}"
-    When I {action}
-    Then I should see the expected result
-    And the system should respond appropriately"""
+    When I {verb}
+    Then I should {expected}
+    And the action completes successfully"""

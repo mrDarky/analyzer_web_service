@@ -3,10 +3,18 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from typing import Optional
 import os
+import warnings
 
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# Warn if using default secret key
+if SECRET_KEY == "your-secret-key-change-in-production":
+    warnings.warn(
+        "Using default SECRET_KEY. Please set SECRET_KEY environment variable in production!",
+        UserWarning
+    )
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

@@ -6,6 +6,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_
 from typing import List, Optional
+from contextlib import asynccontextmanager
 import os
 
 from database import init_db, get_session
@@ -21,7 +22,15 @@ from auth import verify_password, get_password_hash, create_access_token, decode
 from analyzer import WebsiteAnalyzer
 from datetime import timedelta
 
-app = FastAPI(title="Website Analyzer Service")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown events"""
+    # Startup
+    await init_db()
+    yield
+    # Shutdown (if needed)
+
+app = FastAPI(title="Website Analyzer Service", lifespan=lifespan)
 
 # Setup templates
 templates = Jinja2Templates(directory="templates")
@@ -60,11 +69,6 @@ async def get_current_user(
         )
     
     return user
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database on startup"""
-    await init_db()
 
 # Authentication Endpoints
 @app.post("/api/auth/register", response_model=UserResponse)
